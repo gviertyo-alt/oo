@@ -1,0 +1,53 @@
+-- ดึง Rayfield Library มาใช้งาน
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- สร้างหน้าต่าง UI Main Window
+local Window = Rayfield:CreateWindow({
+	Name = "Seed Shop",
+	LoadingTitle = "Loading Seed Shop...",
+	LoadingSubtitle = "by Assistant",
+	ConfigurationSaving = { Enabled = false },
+	Discord = { Enabled = false },
+	KeySystem = false
+})
+
+-- สร้าง Tab หลัก
+local MainTab = Window:CreateTab("Seeds", 4483362458)
+
+-- ตัวแปรควบคุมการทำงานของ Toggle
+local autoBuyGalaxyCap = false
+
+-- ดึง RemoteEvent สำหรับซื้อเมล็ดพันธุ์
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BuySeedRequest = ReplicatedStorage:WaitForChild("BuySeedRequest")
+
+-- ฟังก์ชันซื้อ Galaxy Cap Seed
+local function buyGalaxyCap()
+	local args = {
+		"Galaxy Cap Seed",
+		0
+	}
+	BuySeedRequest:FireServer(unpack(args))
+end
+
+-- สร้าง Toggle สำหรับเปิด/ปิด การซื้ออัตโนมัติ
+MainTab:CreateToggle({
+	Name = "Auto Buy Galaxy Cap Seed",
+	CurrentValue = false,
+	Flag = "ToggleGalaxyCapSeed",
+	Callback = function(Value)
+		autoBuyGalaxyCap = Value
+		
+		-- เริ่มลูปทำงานเมื่อกดเปิด (ON)
+		if autoBuyGalaxyCap then
+			task.spawn(function()
+				while autoBuyGalaxyCap do
+					buyGalaxyCap()
+					
+					-- หน่วงเวลาในการซื้อ (ปรับลด/เพิ่ม ได้ตามต้องการ เช่น 0.1 หรือ 0.5 วินาที)
+					task.wait(0.1)
+				end
+			end)
+		end
+	end,
+})
